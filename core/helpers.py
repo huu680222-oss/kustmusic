@@ -23,6 +23,12 @@ def one_line_title(full_title):
 
 
 def parse_duration_str(duration_str):
+    if not duration_str:
+        return 0
+    try:
+        return int(float(duration_str))
+    except (ValueError, TypeError):
+        pass
     try:
         return int(isodate.parse_duration(duration_str).total_seconds())
     except Exception:

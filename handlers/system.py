@@ -1,13 +1,13 @@
+import os
 import time
 
-import aiohttp
 import psutil
 from pyrogram import Client as PyroClient
 from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 import state
-from config import API_ID, API_HASH, MAIN_OWNER, SEARCH_API_URL
+from config import API_ID, API_HASH, COOKIES_FILE, MAIN_OWNER
 from core.guards import check_abuse
 from core.helpers import get_readable_time, to_bold_unicode
 
@@ -17,15 +17,9 @@ async def ping_handler(client, message):
     response = await message.reply_text("🏓 **Pinging...**")
     tg_ping = round((time.time() - start) * 1000)
 
-    api_ping = "N/A"
-    try:
-        api_start = time.time()
-        async with aiohttp.ClientSession() as session:
-            async with session.get(SEARCH_API_URL, timeout=aiohttp.ClientTimeout(total=5)):
-                pass
-        api_ping = f"{round((time.time() - api_start) * 1000)}ms"
-    except Exception:
-        api_ping = "Timeout"
+    cookies_status = "Inactive ❌"
+    if COOKIES_FILE and os.path.exists(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
+        cookies_status = "Active ✅"
 
     uptime = get_readable_time(int(time.time() - state.bot_start_time))
     cpu = psutil.cpu_percent()
@@ -35,7 +29,7 @@ async def ping_handler(client, message):
     msg = (
         f"🏓 <b>Pong!</b>\n\n"
         f"📱 <b>Telegram:</b> <code>{tg_ping}ms</code>\n"
-        f"🔍 <b>Search API:</b> <code>{api_ping}</code>\n\n"
+        f"🍪 <b>Cookies:</b> <code>{cookies_status}</code>\n\n"
         f"<blockquote>💻 <b>System</b>\n"
         f"├ <b>Uptime:</b> <code>{uptime}</code>\n"
         f"├ <b>CPU:</b> <code>{cpu}%</code>\n"
