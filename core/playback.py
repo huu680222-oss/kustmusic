@@ -108,7 +108,7 @@ async def play_music_core(client, chat_id, song_info, status_msg=None, retry_att
             if status_msg:
                 await status_msg.edit_text("⚡ <b>Resolving highly advanced speed stream...</b>", parse_mode=ParseMode.HTML)
             from core.api import fetch_youtube_link
-            res = await fetch_youtube_link(song_info["url"])
+            res = await fetch_youtube_link(song_info["url"], is_video=song_info.get("is_video", False))
             if res and res.get("stream_url"):
                 stream_url = res["stream_url"]
                 song_info["stream_url"] = stream_url
@@ -122,8 +122,15 @@ async def play_music_core(client, chat_id, song_info, status_msg=None, retry_att
 
         try:
             if stream_url:
-                from pytgcalls.types import MediaStream, AudioQuality
-                input_stream = MediaStream(stream_url, audio_parameters=AudioQuality.HIGH)
+                from pytgcalls.types import MediaStream, AudioQuality, VideoQuality
+                if song_info.get("is_video"):
+                    input_stream = MediaStream(
+                        stream_url,
+                        audio_parameters=AudioQuality.HIGH,
+                        video_parameters=VideoQuality.HD_720p
+                    )
+                else:
+                    input_stream = MediaStream(stream_url, audio_parameters=AudioQuality.HIGH)
                 await call_py.play(chat_id, input_stream)
             else:
                 if not file_path or not os.path.exists(file_path):
@@ -195,6 +202,7 @@ async def play_music_core(client, chat_id, song_info, status_msg=None, retry_att
                     caption=base_caption,
                     reply_markup=control_buttons,
                     parse_mode=ParseMode.HTML,
+                    has_spoiler=song_info.get("is_video", False),
                 )
             except Exception:
                 pass

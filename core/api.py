@@ -10,7 +10,7 @@ from config import COOKIES_FILE
 logger = logging.getLogger(__name__)
 
 
-async def fetch_youtube_link(query):
+async def fetch_youtube_link(query, is_video=False):
     # Determine if query is a URL or a search phrase
     if not (query.startswith("http://") or query.startswith("https://")):
         search_query = f"ytsearch1:{query}"
@@ -18,7 +18,7 @@ async def fetch_youtube_link(query):
         search_query = query
 
     ydl_opts = {
-        "format": "bestaudio/best",
+        "format": "best[height<=720]/best" if is_video else "bestaudio/best",
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
