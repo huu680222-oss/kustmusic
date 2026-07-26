@@ -9,6 +9,29 @@ from core.playback import play_music_core
 from handlers.music import clear_command, pause_command, resume_command, skip_command, stop_command
 from handlers.system import start_handler
 
+from core.helpers import to_bold_unicode
+from config import MAIN_OWNER
+
+async def edit_msg(query, text, reply_markup):
+    if query.message.photo:
+        try:
+            await query.message.edit_caption(
+                caption=text,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML
+            )
+        except Exception:
+            pass
+    else:
+        try:
+            await query.message.edit_text(
+                text=text,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML
+            )
+        except Exception:
+            pass
+
 
 async def callback_handler(client, query: CallbackQuery):
     data = query.data
@@ -31,44 +54,117 @@ async def callback_handler(client, query: CallbackQuery):
     if data == "show_help":
         buttons = [
             [
-                InlineKeyboardButton("🎵 Music", callback_data="help_music"),
-                InlineKeyboardButton("🛡️ Admin", callback_data="help_admin"),
+                InlineKeyboardButton("🎵 ᴍᴜsɪᴄ", callback_data="help_music"),
+                InlineKeyboardButton("🛡️ ᴀᴅᴍɪɴ", callback_data="help_admin"),
             ],
-            [InlineKeyboardButton("🏠 Back", callback_data="go_back")],
+            [
+                InlineKeyboardButton("⚙️ sʏsᴛєᴍ", callback_data="help_system"),
+                InlineKeyboardButton("🏠 ʙᴀᴄᴋ", callback_data="go_back"),
+            ],
+            [
+                InlineKeyboardButton("👤 ᴏᴡɴєʀ", url="https://t.me/zolvid")
+            ]
         ]
-        return await query.message.edit_text(
-            "📜 <b>Commands</b>\n\nChoose a category:",
-            parse_mode=ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup(buttons),
+        text = (
+            "📜 <b>ʜєʟᴘ & ᴄᴏᴍᴍᴀɴᴅs ᴍєɴᴜ</b>\n\n"
+            "<blockquote>ᴄʟɪᴄᴋ ᴏɴ ᴛʜє ʙᴜᴛᴛᴏɴs ʙєʟᴏᴡ ᴛᴏ ᴇxᴘʟᴏʀє ᴄᴏᴍᴍᴀɴᴅs ᴀɴᴅ ʜᴏᴡ ᴛᴏ ᴜsє ᴛʜє ᴍᴜsɪᴄ ʙᴏᴛ!</blockquote>\n\n"
+            "⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>"
         )
+        return await edit_msg(query, text, InlineKeyboardMarkup(buttons))
 
     if data == "go_back":
-        return await start_handler(client, query.message)
+        user_link = f"<a href='tg://user?id={query.from_user.id}'>{query.from_user.first_name}</a>"
+        bot_name_bold = to_bold_unicode(client.me.first_name.upper())
+        caption = (
+            f"👋 <b>ʜєʏ</b> {user_link}<b>!</b>\n\n"
+            f"<blockquote>🎵 <b>{bot_name_bold}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"🎧 <b>ʜɪɢʜ ǫᴜᴀʟɪᴛʏ ᴠᴄ ᴍᴜsɪᴄ sᴛʀєᴀᴍɪɴɢ</b>\n"
+            f"⚡ <b>ʏᴛ-ᴅʟᴘ ᴘᴏᴡєʀєᴅ — ɪɴsᴛᴀɴᴛ sᴘєєᴅ</b>\n"
+            f"🤖 <b>ᴄʟᴏɴє sʏsᴛєᴍ — ʜᴏsᴛ ʏᴏᴜʀ ᴏᴡɴ</b>\n"
+            f"🛡️ <b>ʙᴜɪʟᴛ-ɪɴ ɢʀᴏᴜᴘ ᴘʀᴏᴛєᴄᴛɪᴏɴ</b>\n"
+            f"🌱 <b>ᴢєʀᴏ ᴅᴀᴛᴀʙᴀsє ɴєєᴅєᴅ</b></blockquote>\n\n"
+            f"⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>\n"
+            f"💡 <i>ᴜsє /play &lt;sᴏɴɢ&gt; ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴛᴏ sᴛᴀʀᴛ!</i>"
+        )
+        buttons = [
+            [InlineKeyboardButton("➕ ᴀᴅᴅ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url=f"https://t.me/{client.me.username}?startgroup=true")],
+            [
+                InlineKeyboardButton("📜 ʜєʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="show_help"),
+                InlineKeyboardButton("👤 ᴏᴡɴєʀ", url="https://t.me/zolvid"),
+            ],
+            [
+                InlineKeyboardButton("💬 ᴄʜᴀɴɴєʟ", url="https://t.me/zolvid"),
+                InlineKeyboardButton("✨ sᴜᴘᴘᴏʀᴛ", url="https://t.me/zolvid"),
+            ]
+        ]
+        return await edit_msg(query, caption, InlineKeyboardMarkup(buttons))
 
     if data == "help_music":
-        return await query.message.edit_text(
-            "<blockquote>🎵 <b>Music Commands</b></blockquote>\n\n"
-            "<code>/play</code> — Play a song or URL\n"
-            "<code>/skip</code> — Skip current song\n"
-            "<code>/stop</code> — Stop playback\n"
-            "<code>/pause</code> — Pause playback\n"
-            "<code>/resume</code> — Resume playback\n"
-            "<code>/clear</code> — Clear the queue",
-            parse_mode=ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]),
+        buttons = [
+            [
+                InlineKeyboardButton("🛡️ ᴀᴅᴍɪɴ", callback_data="help_admin"),
+                InlineKeyboardButton("⚙️ sʏsᴛєᴍ", callback_data="help_system"),
+            ],
+            [
+                InlineKeyboardButton("🔙 ʙᴀᴄᴋ ᴛᴏ ʜєʟᴘ", callback_data="show_help"),
+                InlineKeyboardButton("🏠 ᴍᴀɪɴ ᴍєɴᴜ", callback_data="go_back"),
+            ]
+        ]
+        text = (
+            "<blockquote>🎵 <b>ᴍᴜsɪᴄ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>\n\n"
+            "❍ <code>/play &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — ᴘʟᴀʏ sᴏɴɢ ᴏʀ ʏᴏᴜᴛᴜʙє ᴜʀʟ ɪɴ ᴠᴄ\n"
+            "❍ <code>/p &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — sʜᴏʀᴛᴄᴜᴛ ғᴏʀ /play\n"
+            "❍ <code>/skip</code> — sᴋɪᴘ ᴄᴜʀʀєɴᴛ sᴏɴɢ\n"
+            "❍ <code>/stop</code> — sᴛᴏᴘ ᴘʟᴀʏʙᴀᴄᴋ ᴀɴᴅ ʟєᴀᴠє ᴠᴄ\n"
+            "❍ <code>/pause</code> — ᴘᴀᴜsє ᴘʟᴀʏʙᴀᴄᴋ\n"
+            "❍ <code>/resume</code> — ʀєsᴜᴍє ᴘʟᴀʏʙᴀᴄᴋ\n"
+            "❍ <code>/clear</code> — ᴄʟєᴀʀ ǫᴜєᴜєᴅ sᴏɴɢs\n\n"
+            "⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>"
         )
+        return await edit_msg(query, text, InlineKeyboardMarkup(buttons))
 
     if data == "help_admin":
-        return await query.message.edit_text(
-            "<blockquote>🛡️ <b>Admin Commands</b></blockquote>\n\n"
-            "<code>/kick</code> — Kick a user (reply)\n"
-            "<code>/ban</code> — Ban a user (reply)\n"
-            "<code>/unban</code> — Unban a user (reply)\n"
-            "<code>/mute</code> — Mute a user (reply)\n"
-            "<code>/unmute</code> — Unmute a user (reply)",
-            parse_mode=ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]),
+        buttons = [
+            [
+                InlineKeyboardButton("🎵 ᴍᴜsɪᴄ", callback_data="help_music"),
+                InlineKeyboardButton("⚙️ sʏsᴛєᴍ", callback_data="help_system"),
+            ],
+            [
+                InlineKeyboardButton("🔙 ʙᴀᴄᴋ ᴛᴏ ʜєʟᴘ", callback_data="show_help"),
+                InlineKeyboardButton("🏠 ᴍᴀɪɴ ᴍєɴᴜ", callback_data="go_back"),
+            ]
+        ]
+        text = (
+            "<blockquote>🛡️ <b>ᴀᴅᴍɪɴ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>\n\n"
+            "❍ <code>/kick</code> — ᴋɪᴄᴋ ᴀ ᴍєᴍʙєʀ (ʀєᴘʟʏ)\n"
+            "❍ <code>/ban</code> — ʙᴀɴ ᴀ ᴍєᴍʙєʀ (ʀєᴘʟʏ)\n"
+            "❍ <code>/unban</code> — ᴜɴʙᴀɴ ᴀ ᴍєᴍʙєʀ (ʀєᴘʟʏ)\n"
+            "❍ <code>/mute</code> — ᴍᴜᴛє ᴀ ᴍєᴍʙєʀ (ʀєᴘʟʏ)\n"
+            "❍ <code>/unmute</code> — ᴜɴᴍᴜᴛє ᴀ ᴍєᴍʙєʀ (ʀєᴘʟʏ)\n\n"
+            "⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>"
         )
+        return await edit_msg(query, text, InlineKeyboardMarkup(buttons))
+
+    if data == "help_system":
+        buttons = [
+            [
+                InlineKeyboardButton("🎵 ᴍᴜsɪᴄ", callback_data="help_music"),
+                InlineKeyboardButton("🛡️ ᴀᴅᴍɪɴ", callback_data="help_admin"),
+            ],
+            [
+                InlineKeyboardButton("🔙 ʙᴀᴄᴋ ᴛᴏ ʜєʟᴘ", callback_data="show_help"),
+                InlineKeyboardButton("🏠 ᴍᴀɪɴ ᴍєɴᴜ", callback_data="go_back"),
+            ]
+        ]
+        text = (
+            "<blockquote>⚙️ <b>sʏsᴛєᴍ & ᴇxᴛʀᴀ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>\n\n"
+            "❍ <code>/ping</code> — ᴄʜєᴄᴋ ʙᴏᴛ's ᴘɪɴɢ ᴀɴᴅ sᴛᴀᴛs\n"
+            "❍ <code>/clone &lt;ʙᴏᴛ_ᴛᴏᴋєɴ&gt;</code> — ᴄʟᴏɴє ᴀ ɴєᴡ ɪɴsᴛᴀɴᴄє ᴏғ ʙᴏᴛ\n"
+            "❍ <code>/active</code> — ʟɪsᴛ ᴀʟʟ ᴀᴄᴛɪᴠє ᴄʟᴏɴєs (ᴏᴡɴєʀ ᴏɴʟʏ)\n\n"
+            "⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>"
+        )
+        return await edit_msg(query, text, InlineKeyboardMarkup(buttons))
 
     if data in ["stop", "skip", "pause", "resume", "clear"]:
         if not await is_admin(client, chat_id, user_id):

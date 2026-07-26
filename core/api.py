@@ -22,7 +22,7 @@ async def fetch_youtube_link(query):
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
-        "extract_flat": "in_playlist",
+        "extract_flat": False,
         "skip_download": True,
         "js_runtimes": {"deno": {}, "node": {}},
         "remote_components": ["ejs:github"],
@@ -74,6 +74,7 @@ async def fetch_youtube_link(query):
         return {
             "title": title,
             "link": url,
+            "stream_url": video.get("url"),
             "duration": duration,
             "thumbnail": thumbnail,
         }
