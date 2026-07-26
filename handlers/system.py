@@ -39,38 +39,62 @@ async def ping_handler(client, message):
     await response.edit_text(msg, parse_mode=ParseMode.HTML)
 
 
+START_IMAGES = [
+    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1000&auto=format&fit=crop"
+]
+
 async def start_handler(client, message):
     if await check_abuse(message.from_user.id):
         return
 
+    import random
     user_link = f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>"
     bot_name_bold = to_bold_unicode(client.me.first_name.upper())
-    owner_id = getattr(client, "clone_owner", MAIN_OWNER)
 
     caption = (
-        f"👋 <b>Hey</b> {user_link}<b>!</b>\n\n"
+        f"👋 <b>ʜєʏ</b> {user_link}<b>!</b>\n\n"
         f"<blockquote>🎵 <b>{bot_name_bold}</b>\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"🎧 High quality VC music streaming\n"
-        f"⚡ yt-dlp powered — no external API\n"
-        f"🤖 Clone system — host your own\n"
-        f"🛡️ Built-in group protection\n"
-        f"🌱 Zero database needed</blockquote>\n\n"
-        f"💡 <i>Use /play &lt;song&gt; in your group to start!</i>"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"🎧 <b>ʜɪɢʜ ǫᴜᴀʟɪᴛʏ ᴠᴄ ᴍᴜsɪᴄ sᴛʀєᴀᴍɪɴɢ</b>\n"
+        f"⚡ <b>ʏᴛ-ᴅʟᴘ ᴘᴏᴡєʀєᴅ — ɪɴsᴛᴀɴᴛ sᴘєєᴅ</b>\n"
+        f"🤖 <b>ᴄʟᴏɴє sʏsᴛєᴍ — ʜᴏsᴛ ʏᴏᴜʀ ᴏᴡɴ</b>\n"
+        f"🛡️ <b>ʙᴜɪʟᴛ-ɪɴ ɢʀᴏᴜᴘ ᴘʀᴏᴛєᴄᴛɪᴏɴ</b>\n"
+        f"🌱 <b>ᴢєʀᴏ ᴅᴀᴛᴀʙᴀsє ɴєєᴅєᴅ</b></blockquote>\n\n"
+        f"⚡ <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>\n"
+        f"💡 <i>ᴜsє /play &lt;sᴏɴɢ&gt; ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴛᴏ sᴛᴀʀᴛ!</i>"
     )
 
     buttons = [
-        [InlineKeyboardButton("➕ Add to Group", url=f"https://t.me/{client.me.username}?startgroup=true")],
+        [InlineKeyboardButton("➕ ᴀᴅᴅ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url=f"https://t.me/{client.me.username}?startgroup=true")],
         [
-            InlineKeyboardButton("📜 Commands", callback_data="show_help"),
-            InlineKeyboardButton("📢 Channel", url="https://t.me/narzoxbots"),
+            InlineKeyboardButton("📜 ʜєʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="show_help"),
+            InlineKeyboardButton("👤 ᴏᴡɴєʀ", url="https://t.me/zolvid"),
         ],
         [
-            InlineKeyboardButton("💬 Support", url="https://t.me/narzofamily"),
-            InlineKeyboardButton("👤 Owner", url=f"tg://user?id={owner_id}"),
-        ],
+            InlineKeyboardButton("💬 ᴄʜᴀɴɴєʟ", url="https://t.me/zolvid"),
+            InlineKeyboardButton("✨ sᴜᴘᴘᴏʀᴛ", url="https://t.me/zolvid"),
+        ]
     ]
-    await message.reply_text(caption, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
+
+    photo_url = random.choice(START_IMAGES)
+    try:
+        await client.send_photo(
+            chat_id=message.chat.id,
+            photo=photo_url,
+            caption=caption,
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+    except Exception as e:
+        await message.reply_text(
+            caption,
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
 
 
 async def clone_command(client, message):

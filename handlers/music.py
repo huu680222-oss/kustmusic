@@ -37,6 +37,7 @@ async def play_command(client, message):
     song_info = {
         "title": result.get("title"),
         "url": result.get("link"),
+        "stream_url": result.get("stream_url"),
         "duration": str(result.get("duration", "0")),
         "thumb": result.get("thumbnail"),
         "req": requester,

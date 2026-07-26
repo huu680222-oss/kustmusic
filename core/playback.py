@@ -60,11 +60,15 @@ def _build_control_keyboard(chat_id, progress_bar):
     )
     return InlineKeyboardMarkup([
         [InlineKeyboardButton(text=progress_bar, callback_data="progress")],
-        [toggle_btn],
         [
+            toggle_btn,
             InlineKeyboardButton(text="⏭ Skip", callback_data="skip"),
             InlineKeyboardButton(text="⏹ Stop", callback_data="stop"),
         ],
+        [
+            InlineKeyboardButton(text="👤 ᴏᴡɴᴇʀ", url="https://t.me/zolvid"),
+            InlineKeyboardButton(text="💬 ᴄʜᴀɴɴᴇʟ", url="https://t.me/zolvid"),
+        ]
     ])
 
 
@@ -98,27 +102,46 @@ async def update_progress_caption(chat_id, message, start_time, total_duration, 
 async def play_music_core(client, chat_id, song_info, status_msg=None, retry_attempt=False):
     try:
         file_path = song_info.get("file_path")
-        if not file_path or not os.path.exists(file_path):
+        stream_url = song_info.get("stream_url")
+
+        if not stream_url and (not file_path or not os.path.exists(file_path)):
             if status_msg:
-                await status_msg.edit_text("⬇️ <b>Downloading audio...</b>", parse_mode=ParseMode.HTML)
-            file_path = await download_song(song_info["url"])
-            if not file_path or not os.path.exists(file_path):
-                if status_msg:
-                    await status_msg.edit_text("❌ <b>Download failed.</b>", parse_mode=ParseMode.HTML)
-                if chat_id in state.chat_queues and state.chat_queues[chat_id]:
-                    state.chat_queues[chat_id].pop(0)
-                    if state.chat_queues[chat_id]:
-                        asyncio.create_task(
-                            play_music_core(client, chat_id, state.chat_queues[chat_id][0], status_msg)
-                        )
-                return
-            song_info["file_path"] = file_path
+                await status_msg.edit_text("⚡ <b>Resolving highly advanced speed stream...</b>", parse_mode=ParseMode.HTML)
+            from core.api import fetch_youtube_link
+            res = await fetch_youtube_link(song_info["url"])
+            if res and res.get("stream_url"):
+                stream_url = res["stream_url"]
+                song_info["stream_url"] = stream_url
+                if not song_info.get("duration") or song_info.get("duration") == "0":
+                    song_info["duration"] = str(res.get("duration", "0"))
+                if not song_info.get("thumb"):
+                    song_info["thumb"] = res.get("thumbnail")
 
         if status_msg:
             await status_msg.edit_text("🎧 <b>Starting playback...</b>", parse_mode=ParseMode.HTML)
 
         try:
-            await call_py.play(chat_id, file_path)
+            if stream_url:
+                from pytgcalls.types import MediaStream, AudioQuality
+                input_stream = MediaStream(stream_url, audio_parameters=AudioQuality.HIGH)
+                await call_py.play(chat_id, input_stream)
+            else:
+                if not file_path or not os.path.exists(file_path):
+                    if status_msg:
+                        await status_msg.edit_text("⬇️ <b>Downloading audio...</b>", parse_mode=ParseMode.HTML)
+                    file_path = await download_song(song_info["url"])
+                    if not file_path or not os.path.exists(file_path):
+                        if status_msg:
+                            await status_msg.edit_text("❌ <b>Download failed.</b>", parse_mode=ParseMode.HTML)
+                        if chat_id in state.chat_queues and state.chat_queues[chat_id]:
+                            state.chat_queues[chat_id].pop(0)
+                            if state.chat_queues[chat_id]:
+                                asyncio.create_task(
+                                    play_music_core(client, chat_id, state.chat_queues[chat_id][0], status_msg)
+                                )
+                        return
+                    song_info["file_path"] = file_path
+                await call_py.play(chat_id, file_path)
         except Exception as e:
             err_s = str(e).lower()
             is_chat_error = any(k in err_s for k in _ASSISTANT_JOIN_ERRORS)
@@ -153,7 +176,9 @@ async def play_music_core(client, chat_id, song_info, status_msg=None, retry_att
         base_caption = (
             f"<blockquote><b>🎧 {bot_name} · ᴍᴜsɪᴄ sᴛʀєᴀᴍɪɴɢ</b></blockquote>\n\n"
             f"<blockquote>🎵 <b>ᴛɪᴛʟᴇ:</b> {title_short}\n"
-            f"👤 <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b> {song_info['req']}</blockquote>"
+            f"👤 <b>ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ:</b> {song_info['req']}</blockquote>\n"
+            f"⚡ <b>sᴘєєᴅ:</b> <code>Highly Advanced (Instant)</code>\n"
+            f"📱 <b>ᴘᴏᴡєʀєᴅ ʙʏ:</b> <a href='https://t.me/zolvid'>ᴢᴏʟᴠɪᴅ</a>"
         )
 
         control_buttons = _build_control_keyboard(chat_id, get_progress_bar(0, total_duration))
