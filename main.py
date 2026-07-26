@@ -31,11 +31,15 @@ if YOUTUBE_COOKIES:
 
 def _init_ejs_solver():
     try:
-        result = subprocess.run(["deno", "--version"], capture_output=True, text=True)
-        if result.returncode == 0:
-            logger.info(f"Deno detected: {result.stdout.strip()}")
-        else:
-            logger.warning("Deno not found in PATH — yt-dlp JS challenges may fail")
+        try:
+            result = subprocess.run(["deno", "--version"], capture_output=True, text=True)
+            if result.returncode == 0:
+                logger.info(f"Deno detected: {result.stdout.strip()}")
+            else:
+                logger.warning("Deno not found in PATH — yt-dlp JS challenges may fail")
+        except FileNotFoundError:
+            logger.warning("Deno is not installed/found in PATH — yt-dlp JS challenges may fall back to other runtimes (e.g. Node.js)")
+
         subprocess.run(["yt-dlp", "--rm-cache-dir"], check=False, capture_output=True)
         subprocess.run(
             ["yt-dlp", "--remote-components", "ejs:github",
