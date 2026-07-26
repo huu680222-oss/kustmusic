@@ -25,6 +25,7 @@ async def fetch_youtube_link(query):
         "extract_flat": "in_playlist",
         "skip_download": True,
         "js_runtimes": {"deno": {}, "node": {}},
+        "remote_components": ["ejs:github"],
     }
 
     try:
@@ -94,6 +95,7 @@ def _yt_download(youtube_url, output_template, use_cookies=True):
         "no_warnings": True,
         "noplaylist": True,
         "js_runtimes": {"deno": {}, "node": {}},
+        "remote_components": ["ejs:github"],
     }
     if use_cookies and COOKIES_FILE and os.path.exists(COOKIES_FILE):
         ydl_opts["cookiefile"] = COOKIES_FILE
