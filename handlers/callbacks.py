@@ -115,6 +115,8 @@ async def callback_handler(client, query: CallbackQuery):
             "<blockquote>🎵 <b>ᴍᴜsɪᴄ ᴄᴏᴍᴍᴀɴᴅs</b></blockquote>\n\n"
             "❍ <code>/play &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — ᴘʟᴀʏ sᴏɴɢ ᴏʀ ʏᴏᴜᴛᴜʙє ᴜʀʟ ɪɴ ᴠᴄ\n"
             "❍ <code>/p &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — sʜᴏʀᴛᴄᴜᴛ ғᴏʀ /play\n"
+            "❍ <code>/vplay &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — ᴘʟᴀʏ ᴠɪᴅєᴏ ɪɴ ᴠᴄ (sᴘᴏɪʟєʀ ᴛʜᴜᴍʙɴᴀɪʟ)\n"
+            "❍ <code>/vp &lt;sᴏɴɢ ɴᴀᴍє/ᴜʀʟ&gt;</code> — sʜᴏʀᴛᴄᴜᴛ ғᴏʀ /vplay\n"
             "❍ <code>/skip</code> — sᴋɪᴘ ᴄᴜʀʀєɴᴛ sᴏɴɢ\n"
             "❍ <code>/stop</code> — sᴛᴏᴘ ᴘʟᴀʏʙᴀᴄᴋ ᴀɴᴅ ʟєᴀᴠє ᴠᴄ\n"
             "❍ <code>/pause</code> — ᴘᴀᴜsє ᴘʟᴀʏʙᴀᴄᴋ\n"

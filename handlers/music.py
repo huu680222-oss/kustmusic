@@ -69,6 +69,67 @@ async def play_command(client, message):
         )
 
 
+async def vplay_command(client, message):
+    chat_id = message.chat.id
+
+    if await check_abuse(message.from_user.id):
+        return await message.reply_text("⏳ **Slow down.**")
+
+    query = " ".join(message.command[1:])
+    requester = message.from_user.mention
+
+    if not query:
+        return await message.reply_text("❌ **Usage:** `/vplay <song name or url>`")
+
+    status_msg = await message.reply_text("🔎 **Searching Video...**")
+
+    if "youtu.be" in query:
+        m = re.search(r"youtu\.be/([^?&]+)", query)
+        if m:
+            query = f"https://www.youtube.com/watch?v={m.group(1)}"
+
+    result = await fetch_youtube_link(query, is_video=True)
+    if not result:
+        return await status_msg.edit_text("❌ No results found.")
+
+    song_info = {
+        "title": result.get("title"),
+        "url": result.get("link"),
+        "stream_url": result.get("stream_url"),
+        "video_stream_url": result.get("video_stream_url"),
+        "audio_stream_url": result.get("audio_stream_url"),
+        "is_video": True,
+        "duration": str(result.get("duration", "0")),
+        "thumb": result.get("thumbnail"),
+        "req": requester,
+        "user_id": message.from_user.id,
+        "file_path": None,
+        "bot_id": client.me.id,
+    }
+
+    if chat_id not in state.chat_queues:
+        state.chat_queues[chat_id] = []
+    state.chat_queues[chat_id].append(song_info)
+
+    if len(state.chat_queues[chat_id]) == 1:
+        await play_music_core(client, chat_id, song_info, status_msg)
+    else:
+        queue_pos = len(state.chat_queues[chat_id]) - 1
+        queue_text = (
+            f"<b>✨ ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ:</b>\n\n"
+            f"<b>❍ ᴛɪᴛʟᴇ:</b> {song_info['title']}\n"
+            f"<b>❍ ᴘᴏsɪᴛɪᴏɴ:</b> {queue_pos}"
+        )
+        await status_msg.edit_text(
+            queue_text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("⏭ Skip", callback_data="skip"),
+                InlineKeyboardButton("🗑 Clear", callback_data="clear"),
+            ]]),
+        )
+
+
 async def stop_command(client, message):
     chat_id = message.chat.id
     if not await is_admin(client, chat_id, message.from_user.id):
